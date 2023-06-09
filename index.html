@@ -45,11 +45,7 @@
         <p id="sentence">I am busy 5kg of plastic for rupees 500</p>
         <button onclick="record()">Record</button>
         <div id="results"></div>
-        <table id="data">
-            <tr>
-                <th>Extracted Data</th>
-            </tr>
-        </table>
+        <table id="data"></table>
     </div>
 </body>
 
@@ -82,23 +78,18 @@
 
     function displayResults(results) {
         let resultHtml = "<ul>";
-        const spokenWords = [];
-
         for (let i = 0; i < results.length; i++) {
-            const transcript = results[i].transcript;
-            const confidence = results[i].confidence;
-            resultHtml += `<li> ${transcript} - confidence: ${confidence} </li>`;
-            spokenWords.push(transcript.toLowerCase());
+            resultHtml += `<li> ${results[i].transcript} - confidence: ${results[i].confidence} </li>`;
         }
         resultHtml += "</ul>";
         document.getElementById("results").innerHTML = resultHtml;
 
         const sentence = document.getElementById("sentence").textContent;
-        const extractedPositions = extractPositions(sentence, spokenWords);
+        const extractedPositions = extractPositions(sentence);
         insertDataIntoTable(extractedPositions);
     }
 
-    function extractPositions(sentence, spokenWords) {
+    function extractPositions(sentence) {
         const words = sentence.split(' ');
         const positions = [4, 6, 9];
         const extracted = [];
@@ -106,10 +97,7 @@
         for (let i = 0; i < positions.length; i++) {
             const position = positions[i] - 1;
             if (position >= 0 && position < words.length) {
-                const spokenWord = spokenWords.find(word => words[position].toLowerCase().includes(word.toLowerCase()));
-                if (spokenWord) {
-                    extracted.push(spokenWord);
-                }
+                extracted.push(words[position]);
             }
         }
 
@@ -118,6 +106,11 @@
 
     function insertDataIntoTable(data) {
         const table = document.getElementById("data");
+        table.innerHTML = "";
+
+        const headerRow = table.insertRow();
+        const headerCell = headerRow.insertCell();
+        headerCell.textContent = "Extracted Data";
 
         for (let i = 0; i < data.length; i++) {
             const row = table.insertRow();
