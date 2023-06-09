@@ -78,51 +78,52 @@
 
     function displayResults(results) {
         let resultHtml = "<ul>";
+        const spokenWords = [];
+
         for (let i = 0; i < results.length; i++) {
-            resultHtml += `<li> ${results[i].transcript} - confidence: ${results[i].confidence} </li>`;
+            const transcript = results[i].transcript;
+            const confidence = results[i].confidence;
+            resultHtml += `<li> ${transcript} - confidence: ${confidence} </li>`;
+            spokenWords.push(transcript.toLowerCase());
         }
         resultHtml += "</ul>";
         document.getElementById("results").innerHTML = resultHtml;
 
         const sentence = document.getElementById("sentence").textContent;
-        const extractedData = extractDataFromSentence(sentence);
-        insertDataIntoTable(extractedData);
+        const extractedPositions = extractPositions(sentence, spokenWords);
+        insertDataIntoTable(extractedPositions);
     }
 
-    function extractDataFromSentence(sentence) {
-        const regex = /(\d+(?:\.\d+)?)(kg|g|pounds|plastic|rupees|\$)(?=\s|$)/gi;
-        const matches = sentence.matchAll(regex);
-        const extractedData = [];
+    function extractPositions(sentence, spokenWords) {
+        const words = sentence.split(' ');
+        const positions = [4, 6, 9];
+        const extracted = [];
 
-        for (const match of matches) {
-            extractedData.push({
-                value: match[1],
-                unit: match[2]
-            });
+        for (let i = 0; i < positions.length; i++) {
+            const position = positions[i] - 1;
+            if (position >= 0 && position < words.length) {
+                const spokenWord = spokenWords.find(word => words[position].toLowerCase().includes(word.toLowerCase()));
+                if (spokenWord) {
+                    extracted.push(spokenWord);
+                }
+            }
         }
 
-        return extractedData;
+        return extracted;
     }
 
     function insertDataIntoTable(data) {
         const table = document.getElementById("data");
+        table.innerHTML = "";
 
-        if (table.rows.length === 0) {
-            // Insert table headers
-            const headerRow = table.insertRow();
-            const headerCell1 = headerRow.insertCell();
-            headerCell1.textContent = "Value";
-            const headerCell2 = headerRow.insertCell();
-            headerCell2.textContent = "Unit";
-        }
+        const headerRow = table.insertRow();
+        const headerCell = headerRow.insertCell();
+        headerCell.textContent = "Extracted Data";
 
-        // Insert data rows
         for (let i = 0; i < data.length; i++) {
             const row = table.insertRow();
-            const cell1 = row.insertCell();
-            cell1.textContent = data[i].value;
-            const cell2 = row.insertCell();
-            cell2.textContent = data[i].unit;
+            const cell = row.insertCell();
+            cell.textContent = data[i];
         }
     }
 </script>
