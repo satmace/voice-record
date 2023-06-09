@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Speech Recognition Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            text-align: center;
+            padding: 20px;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Speech Recognition Test</h1>
+        <p id="sentence">I am busy 5kg of plastic for rupees 500</p>
+        <button onclick="record()">Record</button>
+        <div id="results"></div>
+        <table id="data"></table>
+    </div>
+</body>
+
+<script>
+    const SpeechRecognition = window.SpeechRecognition || webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+
+    recognition.continuous = false;
+    recognition.lang = 'en-US';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 5;
+
+    recognition.onspeechend = () => {
+        recognition.stop();
+    }
+
+    recognition.onerror = (event) => {
+        console.log(event);
+    }
+
+    function record() {
+        recognition.start();
+        console.log('Ready to receive a command.');
+    }
+
+    recognition.onresult = (event) => {
+        console.log(event);
+        displayResults(event.results[0])
+    }
+
+    function displayResults(results) {
+        let resultHtml = "<ul>";
+        for (let i = 0; i < results.length; i++) {
+            resultHtml += `<li> ${results[i].transcript} - confidence: ${results[i].confidence} </li>`;
+        }
+        resultHtml += "</ul>";
+        document.getElementById("results").innerHTML = resultHtml;
+
+        const sentence = document.getElementById("sentence").textContent;
+        const extractedPositions = extractPositions(sentence);
+        insertDataIntoTable(extractedPositions);
+    }
+
+    function extractPositions(sentence) {
+        const words = sentence.split(' ');
+        const positions = [4, 6, 9];
+        const extracted = [];
+
+        for (let i = 0; i < positions.length; i++) {
+            const position = positions[i] - 1;
+            if (position >= 0 && position < words.length) {
+                extracted.push(words[position]);
+            }
+        }
+
+        return extracted;
+    }
+
+    function insertDataIntoTable(data) {
+        const table = document.getElementById("data");
+        table.innerHTML = "";
+
+        const headerRow = table.insertRow();
+        const headerCell = headerRow.insertCell();
+        headerCell.textContent = "Extracted Data";
+
+        for (let i = 0; i < data.length; i++) {
+            const row = table.insertRow();
+            const cell = row.insertCell();
+            cell.textContent = data[i];
+        }
+    }
+</script>
+</html>
