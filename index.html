@@ -124,28 +124,6 @@
             const cell = row.insertCell();
             cell.textContent = data[i];
         }
-
-        // Insert into the database here
-        const extractedData = JSON.stringify(data);
-        // Perform an AJAX request or any other method to insert the data into your database
-        // Example using fetch:
-        fetch('/insert-data', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: extractedData
-        })
-        .then(response => {
-            if (response.ok) {
-                console.log('Data inserted into the database successfully.');
-            } else {
-                console.log('Failed to insert data into the database.');
-            }
-        })
-        .catch(error => {
-            console.log('Error occurred while inserting data into the database:', error);
-        });
     }
 </script>
 </html>
